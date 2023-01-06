@@ -1,5 +1,5 @@
-// Your GPRS credentials (leave empty, if not needed)
-const char apn[]      = "airtelgprs.com"; // APN (example: internet.vodafone.pt) use https://wiki.apnchanger.org
+// Your GPRS credentials
+const char apn[]      = "airtelgprs.com"; // APN >> use https://wiki.apnchanger.org
 const char gprsUser[] = ""; // GPRS User
 const char gprsPass[] = ""; // GPRS Password
 
@@ -54,8 +54,8 @@ bool setPowerBoostKeepOn(int en){
   }
   return I2CPower.endTransmission() == 0;
 }
-const char* resource = "/api/create.php";
-const char* server = "sensors.rudrayati.co.in";
+const char* resource = "/api/table.php";
+const char* server = "abc.com";
 const int  port = 80;
 
 void setup() {
@@ -109,13 +109,16 @@ void loop() {
     Serial.println("connection successfull");
     delay(1000);
     Serial.println("making request");
+    
+    float sensor_value = 99.99;
 
-    makeHttpRequest();
-    delay(2000);
+    makeHttpRequest(sensor_value);
+    delay(10000); //posting every 10 sec
   }
   
 }
-void makeHttpRequest() {
+
+void makeHttpRequest(float s_value) {
   Serial.print("Connecting to "); 
   Serial.print(server);
   
@@ -132,12 +135,9 @@ void makeHttpRequest() {
   Serial.print("Request resource: "); 
   Serial.println(resource);
 
-  // Temperature in Celsius
-  String jsonObject = "{\"sensor_id\":\"D002\",\"value\":\""+String(55.99)+"\"}";
+  //adding sensor value with id in json format
+  String jsonObject = "{\"sensor_id\":\"S1\",\"value\":\""+String(s_value)+"\"}";
                       
-  // Comment the previous line and uncomment the next line to publish temperature readings in Fahrenheit                    
-  /*String jsonObject = String("{\"value1\":\"") + (1.8 * bme.readTemperature() + 32) + "\",\"value2\":\"" 
-                      + (bme.readPressure()/100.0F) + "\",\"value3\":\"" + bme.readHumidity() + "\"}";*/
                       
   client.println(String("POST ") + resource + " HTTP/1.1");
   client.println(String("Host: ") + server); 
