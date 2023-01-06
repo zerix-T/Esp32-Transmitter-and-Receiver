@@ -1,25 +1,22 @@
 #include <WiFi.h> 
-#include <HTTPClient.h> 
-#include<ArduinoJson.h> 
+#include <HTTPClient.h>  
 #include <SPI.h>
-//#include "nRF24L01.h"
-//#include "RF24.h"
+#include "RF24.h"
 //#include "LowPower.h"
 //#include <ArduinoLowPower.h>
 
-const char* ssid = "Manish"; 
-const char* password = "password06";
+const char* ssid = "xxxxx"; 
+const char* password = "xxxxxxxxx";
 
 //Your Domain name with URL path or IP address with path 
-//String serverName = "https://rudrayati.com/green_quest/api/create.php";
-String serverName = "https://sensors.rudrayati.co.in/api/create.php"; 
+String serverName = "https://abc.com/xyz/api/table.php";
+
 
 float rr[3];
 void  postToServer(float rr[3]);
 
-//RF24 radio(4, 5);
-//
-//const byte address[6] = "00001";
+RF24 radio(4, 5);
+const byte address[6] = "00001";
 
 void setup() 
 {
@@ -35,28 +32,26 @@ void setup()
   Serial.print("Connected to WiFi network with IP Address: "); 
   Serial.println(WiFi.localIP());
 
-//  radio.begin();
-//  radio.openReadingPipe(0, address);
-//  radio.startListening();
+  radio.begin();
+  radio.openReadingPipe(0, address);
+  radio.startListening();
   
 }
  
 void loop()
 { 
-//  while(radio.available()){
-//    radio.read(rr, sizeof(rr));
-//    Serial.println("Soil Moisture:");
-//    Serial.println(rr[0]);
-//    Serial.println("Humidity:");
-//    Serial.println(rr[1]);
-//    Serial.println("Temperature:");
-//    Serial.println(rr[2]);
-    rr[0] = 11.99;
-    rr[1] = 11.99;
-    rr[2] = 11.99;
-    postToServer(rr);
-    delay(300000);
-  //}
+ while(radio.available()){
+   radio.read(rr, sizeof(rr));
+   Serial.println("Sensor1:");
+   Serial.println(rr[0]);
+   Serial.println("Sensor2:");
+   Serial.println(rr[1]);
+   Serial.println("Sensor3:");
+   Serial.println(rr[2]);
+    
+    postToServer(rr); // function to post the values 
+    delay(300000); //post the values every three minutes.
+  }
 
 //  radio.powerDown();
 //  MCUCR |= (3 << 5); //set both BODS and BODSE at the same time
@@ -78,7 +73,8 @@ void  postToServer(float rr[3])
       http.addHeader("Content-Type", "application/json");
       
       // Send HTTP POST request 
-      int httpResponseCode1 = http.POST("{\"sensor_id\":\"D001\",\"value\":\""+String(rr[0])+"\"}"); 
+      // can use for loop to post the three values 
+      int httpResponseCode1 = http.POST("{\"sensor_id\":\"S1\",\"value\":\""+String(rr[0])+"\"}"); 
       if (httpResponseCode1>0) { 
         Serial.print("HTTP Response code: "); 
         Serial.println(httpResponseCode1); 
@@ -90,7 +86,7 @@ void  postToServer(float rr[3])
         Serial.println(httpResponseCode1); 
       }
       delay(2000);
-      int httpResponseCode2 = http.POST("{\"sensor_id\":\"D002\",\"value\":\""+String(rr[1])+"\"}");
+      int httpResponseCode2 = http.POST("{\"sensor_id\":\"S2\",\"value\":\""+String(rr[1])+"\"}");
       if (httpResponseCode2>0) { 
         Serial.print("HTTP Response code: "); 
         Serial.println(httpResponseCode2); 
@@ -102,7 +98,7 @@ void  postToServer(float rr[3])
         Serial.println(httpResponseCode2); 
       }
       delay(2000);
-      int httpResponseCode3 = http.POST("{\"sensor_id\":\"D003\",\"value\":\""+String(rr[2])+"\"}");
+      int httpResponseCode3 = http.POST("{\"sensor_id\":\"S3\",\"value\":\""+String(rr[2])+"\"}");
       if (httpResponseCode1>0) { 
         Serial.print("HTTP Response code: "); 
         Serial.println(httpResponseCode3); 
